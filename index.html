@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bucharest &harr; Groningen Complete Travel Route & NS Cost Optimizer</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚆</text></svg>">
+  <style>
+    :root {
+      --bg-dark: #0b1120;
+      --card-bg: #151f32;
+      --card-inner: #0f172a;
+      --card-border: #22324e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #f59e0b;
+      --ns-yellow: #ffc917;
+      --ns-blue: #003082;
+      --ns-blue-dark: #001f54;
+      --success: #10b981;
+      --danger: #ef4444;
+      --radius: 14px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font);
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 20px 16px 60px;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    /* Top Banner / Header */
+    header {
+      background: linear-gradient(135deg, #00225c 0%, #003082 50%, #0b1120 100%);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-bottom: 24px;
+      position: relative;
+      box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .header-badges {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .ns-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--ns-yellow);
+      color: var(--ns-blue);
+      font-weight: 800;
+      font-size: 0.8rem;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-dates {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 9999px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .header-desc {
+      color: #cbd5e1;
+      font-size: 1rem;
+      max-width: 800px;
+    }
+
+    .route-specs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.88rem;
+    }
+
+    .spec-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 6px 14px;
+      border-radius: 8px;
+    }
+
+    /* Section Tabs: Outbound vs Return vs Overview */
+    .journey-tabs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .j-tab-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .j-tab-btn:hover {
+      border-color: #3b82f6;
+      color: var(--text-main);
+    }
+
+    .j-tab-btn.active {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(30, 41, 59, 0.8) 100%);
+      border-color: var(--primary);
+      color: var(--text-main);
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
+    }
+
+    .j-tab-title {
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .j-tab-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* Interactive Filter & Options */
+    .controls-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      align-items: end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+    }
+
+    select {
+      background: var(--card-inner);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    select:focus {
+      border-color: var(--primary);
+    }
+
+    /* Stats Row */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .stat-desc {
+      font-size: 0.75rem;
+      color: var(--success);
+      margin-top: 4px;
+    }
+
+    /* Visual Price Bars */
+    .chart-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 28px;
+    }
+
+    .chart-box-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .chart-box-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 200px 1fr 100px;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .chart-row-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bar-bg {
+      background: var(--card-inner);
+      height: 24px;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .bar-prog {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #fff;
+      transition: width 0.4s ease;
+    }
+
+    .bar-price-text {
+      text-align: right;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    /* Section Subheading */
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .section-head h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-date-pill {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    /* Route Cards */
+    .routes-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 36px;
+    }
+
+    .route-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .route-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .route-card.gold-border {
+      border: 2px solid var(--accent);
+    }
+
+    .badge-ribbon {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: var(--accent);
+      color: #000;
+      font-weight: 800;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-bottom-left-radius: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .route-inner {
+      padding: 24px;
+    }
+
+    .route-top-info {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .route-heading {
+      font-size: 1.3rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .route-summary {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      max-width: 620px;
+    }
+
+    .price-tag-box {
+      background: var(--card-inner);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 18px;
+      text-align: right;
+      min-width: 150px;
+    }
+
+    .price-num {
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: var(--success);
+    }
+
+    .price-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Leg Timelines */
+    .timeline-container {
+      background: var(--card-inner);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .leg-item {
+      display: grid;
+      grid-template-columns: 140px 36px 1fr auto;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .leg-item:last-child {
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .leg-time-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .leg-hours {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .leg-duration {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .leg-icon-node {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      border: 1px solid var(--card-border);
+    }
+
+    .leg-icon-node.flight {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: var(--primary);
+    }
+
+    .leg-icon-node.bus {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: var(--success);
+    }
+
+    .leg-icon-node.train {
+      background: rgba(255, 201, 23, 0.2);
+      border-color: var(--ns-yellow);
+    }
+
+    .leg-icon-node.walk {
+      background: rgba(148, 163, 184, 0.2);
+      border-color: #64748b;
+    }
+
+    .leg-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .leg-title {
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .leg-notes {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .leg-action {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-leg {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-leg-flight {
+      background: #1e3a8a;
+      color: #93c5fd;
+      border: 1px solid #3b82f6;
+    }
+
+    .btn-leg-flight:hover {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .btn-leg-bus {
+      background: #064e3b;
+      color: #a7f3d0;
+      border: 1px solid #10b981;
+    }
+
+    .btn-leg-bus:hover {
+      background: #059669;
+      color: #fff;
+    }
+
+    .btn-leg-ns {
+      background: var(--ns-yellow);
+      color: var(--ns-blue);
+      border: 1px solid var(--ns-yellow);
+    }
+
+    .btn-leg-ns:hover {
+      background: #ffdb4d;
+      box-shadow: 0 0 10px rgba(255, 201, 23, 0.4);
+    }
+
+    /* NS Callout */
+    .ns-callout {
+      background: rgba(255, 201, 23, 0.08);
+      border-left: 4px solid var(--ns-yellow);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-top: 14px;
+    }
+
+    .ns-mini-logo {
+      background: var(--ns-yellow);
+      color: var(--ns-blue);
+      font-weight: 900;
+      font-size: 0.72rem;
+      padding: 3px 7px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    /* Card Footer */
+    .route-card-footer {
+      background: rgba(11, 17, 32, 0.6);
+      border-top: 1px solid var(--card-border);
+      padding: 14px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .meta-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta-pill {
+      font-size: 0.76rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--card-inner);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+    }
+
+    .btn-main-ns {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--ns-yellow);
+      color: var(--ns-blue);
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-main-ns:hover {
+      background: #ffdb4d;
+      transform: translateY(-1px);
+    }
+
+    /* Guides & Help */
+    .guides-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 30px;
+    }
+
+    .guides-box h3 {
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tips-layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .tip-item {
+      background: var(--card-inner);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .tip-head {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tip-text {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      padding-top: 30px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .leg-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .leg-icon-node {
+        display: none;
+      }
+      .chart-row {
+        grid-template-columns: 130px 1fr 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Top Header -->
+    <header>
+      <div class="header-badges">
+        <span class="ns-badge">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M4 15.5C4 17.43 5.57 19 7.5 19L6 20.5v.5h12v-.5L16.5 19c1.93 0 3.5-1.57 3.5-3.5V5c0-3.5-3.58-4-8-4s-8 .5-8 4v10.5zm8 1.5c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm6-7H6V5h12v5z"/></svg>
+          NS (Nederlandse Spoorwegen) Integrated
+        </span>
+        <span class="badge-dates">🛫 Outbound: 28 Jan &bull; 🛬 Return: 31 Jan</span>
+        <span class="badge-dates">🔗 Direct Booking Buttons per Transport Leg</span>
+      </div>
+      <h1>Bucharest &harr; Groningen Travel Planner &amp; NS Route Optimizer</h1>
+      <p class="header-desc">
+        Door-to-door cost and schedule calculation connecting Bucharest (OTP) to Groningen via low-cost air corridors, airport express links, and official Dutch Railways (NS) trains.
+      </p>
+
+      <div class="route-specs">
+        <div class="spec-item">
+          <span>📍</span> <strong>Origin:</strong> Bucharest Henri Coandă (OTP) / Gara de Nord
+        </div>
+        <div class="spec-item">
+          <span>🏁</span> <strong>Destination:</strong> Groningen Central Station, Netherlands
+        </div>
+        <div class="spec-item">
+          <span>🚆</span> <strong>Rail Authority:</strong> NS (ns.nl) + NS International
+        </div>
+        <div class="spec-item">
+          <span>⚡</span> <strong>Fastest Trip:</strong> 5h 20m door-to-door
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs: Journey Direction -->
+    <nav class="journey-tabs">
+      <button class="j-tab-btn active" id="tabBtnAll" onclick="switchView('all', this)">
+        <span class="j-tab-title">📊 Full Round-Trip Overview</span>
+        <span class="j-tab-sub">Comparison matrix & total combined costs</span>
+      </button>
+
+      <button class="j-tab-btn" id="tabBtnOutbound" onclick="switchView('outbound', this)">
+        <span class="j-tab-title">🛫 Outbound: 28 Jan</span>
+        <span class="j-tab-sub">Bucharest &rarr; Groningen with exact leg links</span>
+      </button>
+
+      <button class="j-tab-btn" id="tabBtnReturn" onclick="switchView('return', this)">
+        <span class="j-tab-title">🛬 Return: 31 Jan</span>
+        <span class="j-tab-sub">Groningen &rarr; Bucharest with exact leg links</span>
+      </button>
+    </nav>
+
+    <!-- Interactive Controls Bar -->
+    <section class="controls-card">
+      <div class="form-group">
+        <label for="luggageOption">Luggage Preference</label>
+        <select id="luggageOption" onchange="calculateAllCosts()">
+          <option value="cabin">Small Underseat Backpack (Free)</option>
+          <option value="trolley" selected>Cabin Trolley 10kg (+€32 round-trip)</option>
+          <option value="checked">Checked Bag 20kg (+€65 round-trip)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="nsTicketType">NS Dutch Railway Fare Type</label>
+        <select id="nsTicketType" onchange="calculateAllCosts()">
+          <option value="prijstijd">NS PrijsTijd Deal (Up to -60% Off-Peak)</option>
+          <option value="standard" selected>Standard NS Full Fare (OVpay / e-Ticket)</option>
+          <option value="dalvoordeel">NS Dal Voordeel Subscription (-40%)</option>
+          <option value="firstclass">NS 1st Class Comfort (+80%)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="passengerCount">Travelers</label>
+        <select id="passengerCount" onchange="calculateAllCosts()">
+          <option value="1">1 Passenger</option>
+          <option value="2">2 Passengers</option>
+          <option value="3">3 Passengers</option>
+          <option value="4">4 Passengers</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Top Key Metrics -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Best Budget Route</div>
+        <div class="stat-val" id="statCheapestPrice">€136</div>
+        <div class="stat-desc">Wizz Air (EIN) + Bus + NS Intercity</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Fastest Transit</div>
+        <div class="stat-val">5h 20m</div>
+        <div class="stat-desc">Direct Schiphol &rarr; Groningen NS train</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">NS Train Journey</div>
+        <div class="stat-val">2h 09m</div>
+        <div class="stat-desc">Zero changes from Schiphol Plaza</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Convenience Factor</div>
+        <div class="stat-val">OVpay</div>
+        <div class="stat-desc">Tap-in & tap-out with bank card</div>
+      </div>
+    </div>
+
+    <!-- Live Cost Comparison Chart -->
+    <div class="chart-box" id="overviewChartBox">
+      <div class="chart-box-header">
+        <div class="chart-box-title">Estimated Total Round-Trip Price Comparison (Jan 28 - Jan 31)</div>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Includes Flights + Local Transit + NS Rail</span>
+      </div>
+      <div id="chartBarsArea">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SECTION 1: OUTBOUND LEG (JAN 28)           -->
+    <!-- ========================================== -->
+    <section id="sectionOutbound">
+      <div class="section-head">
+        <h2>
+          <span>🛫 Outbound Journey: Bucharest &rarr; Groningen</span>
+        </h2>
+        <span class="section-date-pill">Wednesday, 28 Jan</span>
+      </div>
+
+      <div class="routes-wrap">
+        <!-- Outbound Route 1: Eindhoven -->
+        <article class="route-card gold-border">
+          <div class="badge-ribbon">⭐ Lowest Budget</div>
+          <div class="route-inner">
+            <div class="route-top-info">
+              <div>
+                <h3 class="route-heading">1. Outbound via Eindhoven (EIN)</h3>
+                <p class="route-summary">Morning direct flight to Eindhoven Airport &rarr; Hermes Express Bus 400/401 to station &rarr; NS Intercity to Groningen.</p>
+              </div>
+              <div class="price-tag-box">
+                <div class="price-num" id="outboundPrice-ein">€68</div>
+                <div class="price-sub">One-way est. / person</div>
+              </div>
+            </div>
+
+            <!-- Leg by Leg with Individual Action Buttons -->
+            <div class="timeline-container">
+              <!-- Leg 1 -->
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">06:50 &ndash; 08:50</span>
+                  <span class="leg-duration">3h 00m &bull; Non-stop</span>
+                </div>
+                <div class="leg-icon-node flight">✈️</div>
+                <div class="leg-details">
+                  <span class="leg-title">Wizz Air Flight W4 3071 (OTP &rarr; EIN)</span>
+                  <span class="leg-notes">Bucharest Otopeni (Terminal 1) to Eindhoven Airport</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://wizzair.com/en-gb#/booking/select-flight/OTP/EIN/2026-01-28/null/1/0/0/null" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-flight">
+                    <span>✈️ View W4 3071 &rarr;</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Leg 2 -->
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">09:14 &ndash; 09:34</span>
+                  <span class="leg-duration">20m &bull; Every 10 min</span>
+                </div>
+                <div class="leg-icon-node bus">🚌</div>
+                <div class="leg-details">
+                  <span class="leg-title">Hermes Bravo Bus 400 or 401</span>
+                  <span class="leg-notes">Airport Bus Stop B directly to Eindhoven Centraal Bus Station (€4.80)</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://9292.nl/en/journeyresult?from=eindhoven_luchthaven&to=eindhoven_station-eindhoven-centraal&dateTime=2026-01-28T09:15&by=Bus" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-bus">
+                    <span>🚌 Bus 400 Schedule &rarr;</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Leg 3 -->
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">09:44 &ndash; 12:44</span>
+                  <span class="leg-duration">3h 00m &bull; 1 transfer</span>
+                </div>
+                <div class="leg-icon-node train">🚆</div>
+                <div class="leg-details">
+                  <span class="leg-title">NS Intercity: Eindhoven Centraal &rarr; Groningen</span>
+                  <span class="leg-notes">Departs Platform 5 &bull; Cross-platform change at Utrecht Centraal</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://www.ns.nl/en/journeyplanner/#/?vertrek=Eindhoven+Centraal&vertrektype=treinstation&aankomst=Groningen&aankomsttype=treinstation&type=vertrek&tijd=2026-01-28T09:44" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-ns">
+                    <span>🚆 NS Train: 09:44 &rarr;</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="ns-callout">
+              <span class="ns-mini-logo">NS</span>
+              <div>
+                <strong>NS Connection Tip:</strong> Trains depart Eindhoven Centraal for Groningen every 30 minutes at :14 and :44. You don't need to purchase paper tickets—simply tap your phone or contactless card at the gates!
+              </div>
+            </div>
+          </div>
+
+          <div class="route-card-footer">
+            <div class="meta-pills">
+              <span class="meta-pill">⏱️ Total Transit: ~6h 15m</span>
+              <span class="meta-pill">🔄 2 Changes</span>
+              <span class="meta-pill">💰 Most Economical</span>
+            </div>
+            <a href="https://www.ns.nl/en/journeyplanner/#/?vertrek=Eindhoven+Centraal&vertrektype=treinstation&aankomst=Groningen&aankomsttype=treinstation&type=vertrek&tijd=2026-01-28T09:44" target="_blank" rel="noopener noreferrer" class="btn-main-ns">
+              <span>Book on NS.nl &rarr;</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- Outbound Route 2: Amsterdam Schiphol -->
+        <article class="route-card">
+          <div class="route-inner">
+            <div class="route-top-info">
+              <div>
+                <h3 class="route-heading">2. Outbound via Amsterdam Schiphol (AMS) &mdash; Fastest</h3>
+                <p class="route-summary">Direct flight to Amsterdam Schiphol &rarr; Underground train platform &rarr; <strong>Direct NS Intercity straight to Groningen (0 train changes)</strong>.</p>
+              </div>
+              <div class="price-tag-box">
+                <div class="price-num" id="outboundPrice-ams">€129</div>
+                <div class="price-sub">One-way est. / person</div>
+              </div>
+            </div>
+
+            <div class="timeline-container">
+              <!-- Leg 1 -->
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">06:00 &ndash; 08:05</span>
+                  <span class="leg-duration">3h 05m &bull; Non-stop</span>
+                </div>
+                <div class="leg-icon-node flight">✈️</div>
+                <div class="leg-details">
+                  <span class="leg-title">TAROM RO361 / KLM KL1372 (OTP &rarr; AMS)</span>
+                  <span class="leg-notes">Direct early morning flight from Bucharest to Amsterdam Schiphol</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://www.klm.com/search/flights?origin=OTP&destination=AMS&outboundDate=2026-01-28" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-flight">
+                    <span>✈️ View Flights to AMS &rarr;</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Leg 2 -->
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">08:05 &ndash; 08:40</span>
+                  <span class="leg-duration">35m</span>
+                </div>
+                <div class="leg-icon-node walk">🚶</div>
+                <div class="leg-details">
+                  <span class="leg-title">Schiphol Plaza &mdash; Escalators to Station</span>
+                  <span class="leg-notes">Train station is directly underneath the arrivals terminal (Free)</span>
+                </div>
+                <div class="leg-action">
+                  <span style="font-size: 0.8rem; color: var(--success); font-weight: 700;">Inside Airport</span>
+                </div>
+              </div>
+
+              <!-- Leg 3 -->
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">08:53 &ndash; 11:02</span>
+                  <span class="leg-duration">2h 09m &bull; Direct (0 changes)</span>
+                </div>
+                <div class="leg-icon-node train">🚆</div>
+                <div class="leg-details">
+                  <span class="leg-title">Direct NS Intercity: Schiphol Airport &rarr; Groningen</span>
+                  <span class="leg-notes">Platform 1-2 &bull; Direct train stopping at Almere, Zwolle, Assen, Groningen</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://www.ns.nl/en/journeyplanner/#/?vertrek=Schiphol+Airport&vertrektype=treinstation&aankomst=Groningen&aankomsttype=treinstation&type=vertrek&tijd=2026-01-28T08:53" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-ns">
+                    <span>🚆 NS Direct 08:53 &rarr;</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="ns-callout">
+              <span class="ns-mini-logo">NS</span>
+              <div>
+                <strong>Ultimate Convenience:</strong> Direct Intercity trains to Groningen leave Schiphol Airport every hour at :23 and :53. No shuttle bus or train transfer required.
+              </div>
+            </div>
+          </div>
+
+          <div class="route-card-footer">
+            <div class="meta-pills">
+              <span class="meta-pill">⏱️ Total Transit: 5h 20m</span>
+              <span class="meta-pill">🔄 0 Train Changes</span>
+              <span class="meta-pill">🛋️ Maximum Comfort</span>
+            </div>
+            <a href="https://www.ns.nl/en/journeyplanner/#/?vertrek=Schiphol+Airport&vertrektype=treinstation&aankomst=Groningen&aankomsttype=treinstation&type=vertrek&tijd=2026-01-28T08:53" target="_blank" rel="noopener noreferrer" class="btn-main-ns">
+              <span>Book on NS.nl &rarr;</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- Outbound Route 3: Dortmund -->
+        <article class="route-card">
+          <div class="route-inner">
+            <div class="route-top-info">
+              <div>
+                <h3 class="route-heading">3. Outbound via Dortmund (DTM)</h3>
+                <p class="route-summary">Wizz Air to Dortmund Airport &rarr; Airport Express to Dortmund Hbf &rarr; Cross-border train into Groningen via Leer.</p>
+              </div>
+              <div class="price-tag-box">
+                <div class="price-num" id="outboundPrice-dtm">€79</div>
+                <div class="price-sub">One-way est. / person</div>
+              </div>
+            </div>
+
+            <div class="timeline-container">
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">06:15 &ndash; 07:55</span>
+                  <span class="leg-duration">2h 40m</span>
+                </div>
+                <div class="leg-icon-node flight">✈️</div>
+                <div class="leg-details">
+                  <span class="leg-title">Wizz Air Flight W4 3001 (OTP &rarr; DTM)</span>
+                  <span class="leg-notes">Bucharest Otopeni to Dortmund Airport, Germany</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://wizzair.com/en-gb#/booking/select-flight/OTP/DTM/2026-01-28/null/1/0/0/null" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-flight">
+                    <span>✈️ View W4 3001 &rarr;</span>
+                  </a>
+                </div>
+              </div>
+
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">08:15 &ndash; 08:40</span>
+                  <span class="leg-duration">25m</span>
+                </div>
+                <div class="leg-icon-node bus">🚌</div>
+                <div class="leg-details">
+                  <span class="leg-title">Dortmund Airport Express Bus</span>
+                  <span class="leg-notes">Direct shuttle bus to Dortmund Hauptbahnhof central station (€10)</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://www.dortmund-airport.com/airport-express" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-bus">
+                    <span>🚌 Airport Express &rarr;</span>
+                  </a>
+                </div>
+              </div>
+
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">09:05 &ndash; 13:20</span>
+                  <span class="leg-duration">4h 15m &bull; 1 transfer</span>
+                </div>
+                <div class="leg-icon-node train">🚆</div>
+                <div class="leg-details">
+                  <span class="leg-title">DB Intercity &amp; Arriva/NS: Dortmund &rarr; Groningen</span>
+                  <span class="leg-notes">Via Münster and Leer cross-border into Groningen Station</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://www.bahn.com/en/booking-information?departure=Dortmund%20Hbf&arrival=Groningen&date=2026-01-28T09:05" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-ns">
+                    <span>🚆 DB / NS Train &rarr;</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="route-card-footer">
+            <div class="meta-pills">
+              <span class="meta-pill">⏱️ Total Transit: ~7h 15m</span>
+              <span class="meta-pill">🔄 2 Changes</span>
+            </div>
+            <a href="https://www.nsinternational.com/en" target="_blank" rel="noopener noreferrer" class="btn-main-ns">
+              <span>NS International &rarr;</span>
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 2: DEDICATED RETURN LEG (JAN 31)   -->
+    <!-- ========================================== -->
+    <section id="sectionReturn">
+      <div class="section-head">
+        <h2>
+          <span>🛬 Dedicated Return Journey: Groningen &rarr; Bucharest</span>
+        </h2>
+        <span class="section-date-pill">Saturday, 31 Jan</span>
+      </div>
+
+      <div class="routes-wrap">
+        <!-- Return Route 1: Via Eindhoven -->
+        <article class="route-card gold-border">
+          <div class="badge-ribbon">⭐ Lowest Budget Return</div>
+          <div class="route-inner">
+            <div class="route-top-info">
+              <div>
+                <h3 class="route-heading">1. Return via Eindhoven (EIN)</h3>
+                <p class="route-summary">NS Intercity from Groningen &rarr; Hermes Bus 400/401 to airport &rarr; Wizz Air direct flight back to Bucharest (OTP).</p>
+              </div>
+              <div class="price-tag-box">
+                <div class="price-num" id="returnPrice-ein">€68</div>
+                <div class="price-sub">One-way est. / person</div>
+              </div>
+            </div>
+
+            <div class="timeline-container">
+              <!-- Leg 1: NS Train -->
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">13:48 &ndash; 16:34</span>
+                  <span class="leg-duration">2h 46m &bull; 1 transfer</span>
+                </div>
+                <div class="leg-icon-node train">🚆</div>
+                <div class="leg-details">
+                  <span class="leg-title">NS Intercity: Groningen Station &rarr; Eindhoven Centraal</span>
+                  <span class="leg-notes">Departs Platform 3 &bull; Easy cross-platform change at Utrecht Centraal</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://www.ns.nl/en/journeyplanner/#/?vertrek=Groningen&vertrektype=treinstation&aankomst=Eindhoven+Centraal&aankomsttype=treinstation&type=vertrek&tijd=2026-01-31T13:48" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-ns">
+                    <span>🚆 NS Train: 13:48 &rarr;</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Leg 2: Airport Bus -->
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">16:45 &ndash; 17:05</span>
+                  <span class="leg-duration">20m &bull; Every 10 min</span>
+                </div>
+                <div class="leg-icon-node bus">🚌</div>
+                <div class="leg-details">
+                  <span class="leg-title">Hermes Bravo Bus 400 or 401</span>
+                  <span class="leg-notes">Eindhoven Centraal Station to Eindhoven Airport Terminal (€4.80)</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://9292.nl/en/journeyresult?from=eindhoven_station-eindhoven-centraal&to=eindhoven_luchthaven&dateTime=2026-01-31T16:45&by=Bus" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-bus">
+                    <span>🚌 Bus 400 Schedule &rarr;</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Leg 3: Flight -->
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">19:10 &ndash; 22:50</span>
+                  <span class="leg-duration">2h 40m &bull; Non-stop</span>
+                </div>
+                <div class="leg-icon-node flight">✈️</div>
+                <div class="leg-details">
+                  <span class="leg-title">Wizz Air Flight W4 3074 / W4 3072 (EIN &rarr; OTP)</span>
+                  <span class="leg-notes">Direct flight back to Bucharest Henri Coandă Airport</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://wizzair.com/en-gb#/booking/select-flight/EIN/OTP/2026-01-31/null/1/0/0/null" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-flight">
+                    <span>✈️ View Flights to OTP &rarr;</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="ns-callout">
+              <span class="ns-mini-logo">NS</span>
+              <div>
+                <strong>Alternative Morning Departure:</strong> If taking morning flight W4 3072 (departs EIN 09:25), take the early NS train from Groningen at 05:48 arriving Eindhoven at 08:34. The afternoon/evening connection above allows a relaxed Saturday in Groningen!
+              </div>
+            </div>
+          </div>
+
+          <div class="route-card-footer">
+            <div class="meta-pills">
+              <span class="meta-pill">⏱️ Total Transit: ~6h 15m</span>
+              <span class="meta-pill">🔄 2 Changes</span>
+              <span class="meta-pill">💰 Lowest Return Fare</span>
+            </div>
+            <a href="https://www.ns.nl/en/journeyplanner/#/?vertrek=Groningen&vertrektype=treinstation&aankomst=Eindhoven+Centraal&aankomsttype=treinstation&type=vertrek&tijd=2026-01-31T13:48" target="_blank" rel="noopener noreferrer" class="btn-main-ns">
+              <span>Book on NS.nl &rarr;</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- Return Route 2: Via Amsterdam Schiphol -->
+        <article class="route-card">
+          <div class="route-inner">
+            <div class="route-top-info">
+              <div>
+                <h3 class="route-heading">2. Return via Amsterdam Schiphol (AMS) &mdash; Direct &amp; Fastest</h3>
+                <p class="route-summary"><strong>Direct NS Intercity straight from Groningen Station into Schiphol Airport (0 changes)</strong> &rarr; Evening flight to Bucharest.</p>
+              </div>
+              <div class="price-tag-box">
+                <div class="price-num" id="returnPrice-ams">€129</div>
+                <div class="price-sub">One-way est. / person</div>
+              </div>
+            </div>
+
+            <div class="timeline-container">
+              <!-- Leg 1: NS Train -->
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">15:48 &ndash; 17:57</span>
+                  <span class="leg-duration">2h 09m &bull; Direct (0 changes)</span>
+                </div>
+                <div class="leg-icon-node train">🚆</div>
+                <div class="leg-details">
+                  <span class="leg-title">Direct NS Intercity: Groningen Station &rarr; Schiphol Airport</span>
+                  <span class="leg-notes">Platform 4 &bull; Direct train stopping right under the airport terminal</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://www.ns.nl/en/journeyplanner/#/?vertrek=Groningen&vertrektype=treinstation&aankomst=Schiphol+Airport&aankomsttype=treinstation&type=vertrek&tijd=2026-01-31T15:48" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-ns">
+                    <span>🚆 NS Direct 15:48 &rarr;</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Leg 2: Airport Transition -->
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">17:57 &ndash; 18:20</span>
+                  <span class="leg-duration">23m</span>
+                </div>
+                <div class="leg-icon-node walk">🚶</div>
+                <div class="leg-details">
+                  <span class="leg-title">Schiphol Airport Platforms 1-2 &rarr; Departures 3</span>
+                  <span class="leg-notes">Take escalator up directly to check-in &amp; security gates</span>
+                </div>
+                <div class="leg-action">
+                  <span style="font-size: 0.8rem; color: var(--success); font-weight: 700;">Direct Access</span>
+                </div>
+              </div>
+
+              <!-- Leg 3: Flight -->
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">20:55 &ndash; 00:40</span>
+                  <span class="leg-duration">2h 45m &bull; Non-stop</span>
+                </div>
+                <div class="leg-icon-node flight">✈️</div>
+                <div class="leg-details">
+                  <span class="leg-title">KLM Flight KL1379 / TAROM RO364 (AMS &rarr; OTP)</span>
+                  <span class="leg-notes">Evening non-stop flight landing in Bucharest at 00:40</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://www.klm.com/search/flights?origin=AMS&destination=OTP&outboundDate=2026-01-31" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-flight">
+                    <span>✈️ View Flights to OTP &rarr;</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="ns-callout">
+              <span class="ns-mini-logo">NS</span>
+              <div>
+                <strong>Seamless Return:</strong> Step onto the train at Groningen, sit down, and step off directly at Schiphol Airport 2 hours and 9 minutes later without touching luggage transfers!
+              </div>
+            </div>
+          </div>
+
+          <div class="route-card-footer">
+            <div class="meta-pills">
+              <span class="meta-pill">⏱️ Total Transit: 5h 20m</span>
+              <span class="meta-pill">🔄 0 Train Changes</span>
+              <span class="meta-pill">🛋️ Top Comfort</span>
+            </div>
+            <a href="https://www.ns.nl/en/journeyplanner/#/?vertrek=Groningen&vertrektype=treinstation&aankomst=Schiphol+Airport&aankomsttype=treinstation&type=vertrek&tijd=2026-01-31T15:48" target="_blank" rel="noopener noreferrer" class="btn-main-ns">
+              <span>Book on NS.nl &rarr;</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- Return Route 3: Via Dortmund -->
+        <article class="route-card">
+          <div class="route-inner">
+            <div class="route-top-info">
+              <div>
+                <h3 class="route-heading">3. Return via Dortmund (DTM)</h3>
+                <p class="route-summary">Arriva/DB train to Dortmund Hbf &rarr; Airport Express &rarr; Wizz Air back to Bucharest.</p>
+              </div>
+              <div class="price-tag-box">
+                <div class="price-num" id="returnPrice-dtm">€79</div>
+                <div class="price-sub">One-way est. / person</div>
+              </div>
+            </div>
+
+            <div class="timeline-container">
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">10:00 &ndash; 14:15</span>
+                  <span class="leg-duration">4h 15m &bull; 1 transfer</span>
+                </div>
+                <div class="leg-icon-node train">🚆</div>
+                <div class="leg-details">
+                  <span class="leg-title">Arriva &amp; DB Intercity: Groningen &rarr; Dortmund Hbf</span>
+                  <span class="leg-notes">Via Leer and Münster into Dortmund Hauptbahnhof</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://www.bahn.com/en/booking-information?departure=Groningen&arrival=Dortmund%20Hbf&date=2026-01-31T10:00" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-ns">
+                    <span>🚆 DB / NS Train &rarr;</span>
+                  </a>
+                </div>
+              </div>
+
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">14:45 &ndash; 15:10</span>
+                  <span class="leg-duration">25m</span>
+                </div>
+                <div class="leg-icon-node bus">🚌</div>
+                <div class="leg-details">
+                  <span class="leg-title">Dortmund Airport Express Coach</span>
+                  <span class="leg-notes">Non-stop from Dortmund Hbf station to Dortmund Airport</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://www.dortmund-airport.com/airport-express" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-bus">
+                    <span>🚌 Airport Express &rarr;</span>
+                  </a>
+                </div>
+              </div>
+
+              <div class="leg-item">
+                <div class="leg-time-block">
+                  <span class="leg-hours">17:15 &ndash; 20:50</span>
+                  <span class="leg-duration">2h 35m</span>
+                </div>
+                <div class="leg-icon-node flight">✈️</div>
+                <div class="leg-details">
+                  <span class="leg-title">Wizz Air Flight (DTM &rarr; OTP)</span>
+                  <span class="leg-notes">Direct flight back to Bucharest</span>
+                </div>
+                <div class="leg-action">
+                  <a href="https://wizzair.com/en-gb#/booking/select-flight/DTM/OTP/2026-01-31/null/1/0/0/null" target="_blank" rel="noopener noreferrer" class="btn-leg btn-leg-flight">
+                    <span>✈️ View Flights to OTP &rarr;</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="route-card-footer">
+            <div class="meta-pills">
+              <span class="meta-pill">⏱️ Total Transit: ~7h 15m</span>
+              <span class="meta-pill">🔄 2 Changes</span>
+            </div>
+            <a href="https://www.nsinternational.com/en" target="_blank" rel="noopener noreferrer" class="btn-main-ns">
+              <span>NS International &rarr;</span>
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Detailed NS Guide & Ticket Savings Section -->
+    <section class="guides-box">
+      <h3>💡 Guide to Dutch Rail (NS) Ticketing &amp; Discounts</h3>
+      <div class="tips-layout">
+        <div class="tip-item">
+          <div class="tip-head">💳 OVpay Contactless Tapping</div>
+          <p class="tip-text">
+            No registration or paper tickets needed. Tap your contactless card or Google/Apple Pay phone at the turnstiles when boarding and tap again when exiting. It automatically debits standard 2nd-class fare without paper surcharges.
+          </p>
+        </div>
+
+        <div class="tip-item">
+          <div class="tip-head">🏷️ NS PrijsTijd Deals (Up to -60%)</div>
+          <p class="tip-text">
+            Book on <strong>ns.nl</strong> or the NS App at least 1 day in advance for off-peak trains. Look for the percentage discount badge. Fares from Schiphol/Eindhoven to Groningen drop from €33.30 down to ~€13.30–€20.00!
+          </p>
+        </div>
+
+        <div class="tip-item">
+          <div class="tip-head">🎟️ Dal Voordeel (-40% for 4 People)</div>
+          <p class="tip-text">
+            The NS Dal Voordeel subscription costs €5.60 for a month (cancel anytime). It gives the cardholder and up to 3 travel companions 40% off during off-peak hours and all weekend. A single round trip saves more than €50 for a group of two!
+          </p>
+        </div>
+
+        <div class="tip-item">
+          <div class="tip-head">📱 Official NS App</div>
+          <p class="tip-text">
+            Download the English "NS" app. It displays live train departure platforms, train length, where to board, and real-time disruption alerts across the whole Netherlands railway network.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>Data &amp; schedules aligned with official booking engines: NS (Nederlandse Spoorwegen), NS International, 9292.nl, Wizz Air, KLM, TAROM, and DB.</p>
+      <p style="margin-top: 6px;">Travel Window: Outbound 28 Jan &bull; Return 31 Jan &bull; Deployed to GitHub Pages</p>
+    </footer>
+  </div>
+
+  <script>
+    const routesConfig = [
+      { id: "ein", name: "Via Eindhoven (EIN)", flightOneWay: 32.5, transitOneWay: 4.80, nsOneWay: 33.30, color: "#10b981" },
+      { id: "ams", name: "Via Amsterdam (AMS)", flightOneWay: 97.5, transitOneWay: 0.00, nsOneWay: 33.30, color: "#ffc917" },
+      { id: "dtm", name: "Via Dortmund (DTM)", flightOneWay: 29.0, transitOneWay: 10.00, nsOneWay: 40.00, color: "#06b6d4" },
+      { id: "crl", name: "Via Brussels (CRL)", flightOneWay: 27.5, transitOneWay: 17.00, nsOneWay: 48.00, color: "#3b82f6" },
+      { id: "rail", name: "Pure Rail Overland", flightOneWay: 0.0, transitOneWay: 0.00, nsOneWay: 130.00, color: "#a855f7" }
+    ];
+
+    function calculateAllCosts() {
+      const luggage = document.getElementById('luggageOption').value;
+      const fareType = document.getElementById('nsTicketType').value;
+      const passengers = parseInt(document.getElementById('passengerCount').value) || 1;
+
+      let luggRoundTrip = 0;
+      if (luggage === 'trolley') luggRoundTrip = 32;
+      if (luggage === 'checked') luggRoundTrip = 65;
+      const luggOneWay = luggRoundTrip / 2;
+
+      let minRoundTrip = Infinity;
+      const roundTripTotals = {};
+
+      routesConfig.forEach(r => {
+        let nsSingle = r.nsOneWay;
+        if (r.id === 'ein' || r.id === 'ams') {
+          if (fareType === 'prijstijd') nsSingle = r.nsOneWay * 0.60;
+          if (fareType === 'dalvoordeel') nsSingle = (r.nsOneWay * 0.60) + (2.80 / passengers);
+          if (fareType === 'firstclass') nsSingle = r.nsOneWay * 1.80;
+        }
+
+        const flightSingle = r.flightOneWay > 0 ? r.flightOneWay + luggOneWay : 0;
+        const oneWayTotal = Math.round(flightSingle + r.transitOneWay + nsSingle);
+        const roundTripTotal = oneWayTotal * 2;
+
+        roundTripTotals[r.id] = roundTripTotal;
+        if (roundTripTotal < minRoundTrip) minRoundTrip = roundTripTotal;
+
+        // Update Outbound prices
+        const outEl = document.getElementById(`outboundPrice-${r.id}`);
+        if (outEl) outEl.innerText = `€${oneWayTotal}`;
+
+        // Update Return prices
+        const retEl = document.getElementById(`returnPrice-${r.id}`);
+        if (retEl) retEl.innerText = `€${oneWayTotal}`;
+      });
+
+      document.getElementById('statCheapestPrice').innerText = `€${minRoundTrip}`;
+
+      renderOverviewChart(roundTripTotals);
+    }
+
+    function renderOverviewChart(totals) {
+      const area = document.getElementById('chartBarsArea');
+      area.innerHTML = '';
+      const maxVal = Math.max(...Object.values(totals), 300);
+
+      routesConfig.forEach(r => {
+        const val = totals[r.id];
+        const pct = Math.min(100, Math.round((val / maxVal) * 100));
+
+        const row = document.createElement('div');
+        row.className = 'chart-row';
+        row.innerHTML = `
+          <div class="chart-row-name">${r.name}</div>
+          <div class="bar-bg">
+            <div class="bar-prog" style="width: ${pct}%; background-color: ${r.color};">
+              €${val}
+            </div>
+          </div>
+          <div class="bar-price-text">€${val}</div>
+        `;
+        area.appendChild(row);
+      });
+    }
+
+    function switchView(view, btn) {
+      document.querySelectorAll('.j-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const outSec = document.getElementById('sectionOutbound');
+      const retSec = document.getElementById('sectionReturn');
+      const chartBox = document.getElementById('overviewChartBox');
+
+      if (view === 'all') {
+        outSec.style.display = 'block';
+        retSec.style.display = 'block';
+        chartBox.style.display = 'block';
+      } else if (view === 'outbound') {
+        outSec.style.display = 'block';
+        retSec.style.display = 'none';
+        chartBox.style.display = 'none';
+      } else if (view === 'return') {
+        outSec.style.display = 'none';
+        retSec.style.display = 'block';
+        chartBox.style.display = 'none';
+      }
+    }
+
+    window.onload = function() {
+      calculateAllCosts();
+    };
+  </script>
+</body>
+</html>

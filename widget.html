@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    :root {
+      --ns-yellow: #ffc917;
+      --ns-blue: #003082;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans, system-ui, sans-serif);
+    }
+
+    html, body {
+      background: transparent;
+      color: var(--foreground);
+    }
+
+    .widget-wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .hero-card {
+      background: linear-gradient(135deg, rgba(0, 48, 130, 0.4) 0%, rgba(15, 23, 42, 0.7) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      position: relative;
+    }
+
+    .badge-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .ns-pill {
+      background: var(--ns-yellow);
+      color: var(--ns-blue);
+      font-weight: 800;
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .date-tag {
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .hero-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+
+    .hero-sub {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* Controls Bar */
+    .controls-grid {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .ctl-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ctl-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+    }
+
+    select {
+      background: var(--background, #0f172a);
+      color: var(--foreground);
+      border: 1px solid var(--border);
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      outline: none;
+    }
+
+    /* Metrics Row */
+    .metrics-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .metric-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      text-align: center;
+    }
+
+    .metric-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric-val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 2px 0;
+    }
+
+    .metric-note {
+      font-size: 0.7rem;
+      color: var(--success, #10b981);
+    }
+
+    /* Visual Price Bars */
+    .visual-chart {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .chart-heading {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 130px 1fr 65px;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .bar-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .bar-container {
+      background: rgba(0, 0, 0, 0.2);
+      height: 20px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding-left: 6px;
+    }
+
+    .bar-cost-text {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* Compact Route Cards */
+    .route-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+    }
+
+    .route-item.highlight {
+      border-color: var(--accent);
+    }
+
+    .tag-ribbon {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: var(--accent);
+      color: #000;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 2px 10px;
+      border-bottom-left-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .r-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .r-name {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .r-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .r-price-tag {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: var(--success, #10b981);
+      padding: 6px 10px;
+      border-radius: 8px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .r-price-num {
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .r-price-sub {
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    /* Mini Timeline */
+    .mini-steps {
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.78rem;
+    }
+
+    .mini-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-ico {
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .step-txt {
+      flex: 1;
+      color: var(--foreground);
+    }
+
+    .step-fare {
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .r-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem;
+    }
+
+    .btn-ns-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--ns-yellow);
+      color: var(--ns-blue);
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 5px 10px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    .btn-ns-link:hover {
+      opacity: 0.9;
+    }
+
+    .ns-tip-banner {
+      background: rgba(255, 201, 23, 0.08);
+      border-left: 3px solid var(--ns-yellow);
+      padding: 8px 12px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.75rem;
+      color: var(--foreground);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="widget-wrap">
+    <!-- Header Card -->
+    <div class="hero-card">
+      <div class="badge-row">
+        <span class="ns-pill">NS Integrated</span>
+        <span class="date-tag">📅 Jan 28 &ndash; Jan 31</span>
+        <span class="date-tag">📍 Bucharest (OTP) &rarr; Groningen</span>
+      </div>
+      <h1 class="hero-title">Bucharest to Groningen Travel Route Optimizer</h1>
+      <p class="hero-sub">Calculated multi-modal routes pairing direct air corridors with the official Dutch Railways (NS) network.</p>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-grid">
+      <div class="ctl-group">
+        <label class="ctl-label" for="wLuggage">Luggage Option</label>
+        <select id="wLuggage" onchange="calcWidget()">
+          <option value="cabin">Small Underseat Backpack (Free)</option>
+          <option value="trolley" selected>Cabin Trolley 10kg (+€32 return)</option>
+          <option value="checked">Checked Bag 20kg (+€65 return)</option>
+        </select>
+      </div>
+      <div class="ctl-group">
+        <label class="ctl-label" for="wNsFare">Dutch Railway (NS) Fare Type</label>
+        <select id="wNsFare" onchange="calcWidget()">
+          <option value="prijstijd">NS PrijsTijd Deal (Up to -60% Off-Peak)</option>
+          <option value="standard" selected>Standard NS Full Fare (OVpay / e-Ticket)</option>
+          <option value="dalvoordeel">NS Dal Voordeel Discount (-40%)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="metrics-bar">
+      <div class="metric-box">
+        <div class="metric-label">Lowest Price</div>
+        <div class="metric-val" id="wMinPrice">€136</div>
+        <div class="metric-note">Via Eindhoven (EIN)</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">Fastest Transit</div>
+        <div class="metric-val">5h 20m</div>
+        <div class="metric-note">Via Schiphol (Direct NS)</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">NS Train Segment</div>
+        <div class="metric-val">2h 09m</div>
+        <div class="metric-note">Underground Terminal</div>
+      </div>
+    </div>
+
+    <!-- Live Bar Chart -->
+    <div class="visual-chart">
+      <div class="chart-heading">
+        <span>Estimated Total Round-Trip Cost (€)</span>
+        <span style="font-weight: normal; color: var(--muted); font-size: 0.75rem;">Flights + Transit + NS Trains</span>
+      </div>
+      <div id="wChartContainer">
+        <!-- Bars injected via JS -->
+      </div>
+    </div>
+
+    <!-- Route 1: Eindhoven (Recommended Budget) -->
+    <div class="route-item highlight">
+      <div class="tag-ribbon">⭐ Lowest Cost</div>
+      <div class="r-head">
+        <div>
+          <div class="r-name">1. Via Eindhoven (EIN) &mdash; Best Value</div>
+          <div class="r-desc">Wizz Air daily flight + Hermes Bus 400/401 + NS Intercity train</div>
+        </div>
+        <div class="r-price-tag">
+          <div class="r-price-num" id="wPrice-ein">€136</div>
+          <div class="r-price-sub">Round-trip total</div>
+        </div>
+      </div>
+      <div class="mini-steps">
+        <div class="mini-step">
+          <span class="step-ico">✈️</span>
+          <span class="step-txt">W4 3071: OTP 06:50 &rarr; EIN 08:50 (Daily, 3h 00m)</span>
+          <span class="step-fare" id="wLegAir-ein">€65 return</span>
+        </div>
+        <div class="mini-step">
+          <span class="step-ico">🚌</span>
+          <span class="step-txt">Bus 400/401: Eindhoven Airport &rarr; Eindhoven Centraal (20m)</span>
+          <span class="step-fare">€9.60 return</span>
+        </div>
+        <div class="mini-step">
+          <span class="step-ico">🚆</span>
+          <span class="step-txt">NS Intercity: Eindhoven Centraal &rarr; Groningen (2h 46m)</span>
+          <span class="step-fare" id="wLegNs-ein">€61.40 return</span>
+        </div>
+      </div>
+      <div class="r-actions">
+        <span>⏱️ Total Travel: ~6h 15m &bull; 🔄 2 Transfers</span>
+        <a href="https://www.ns.nl/en/journeyplanner/#/?vertrek=Eindhoven+Centraal&vertrektype=treinstation&aankomst=Groningen&aankomsttype=treinstation" target="_blank" class="btn-ns-link">Book on NS.nl &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Route 2: Amsterdam Schiphol (Direct NS) -->
+    <div class="route-item">
+      <div class="r-head">
+        <div>
+          <div class="r-name">2. Via Amsterdam Schiphol (AMS) &mdash; Fastest & Zero Train Transfer</div>
+          <div class="r-desc">TAROM / KLM / HiSky direct to AMS + Direct NS train to Groningen</div>
+        </div>
+        <div class="r-price-tag">
+          <div class="r-price-num" id="wPrice-ams">€258</div>
+          <div class="r-price-sub">Round-trip total</div>
+        </div>
+      </div>
+      <div class="mini-steps">
+        <div class="mini-step">
+          <span class="step-ico">✈️</span>
+          <span class="step-txt">TAROM RO361 / KLM KL1372: OTP 06:00 &rarr; AMS 08:05</span>
+          <span class="step-fare" id="wLegAir-ams">€195 return</span>
+        </div>
+        <div class="mini-step">
+          <span class="step-ico">🚶</span>
+          <span class="step-txt">Schiphol Airport Arrivals &rarr; Train Station directly underneath</span>
+          <span class="step-fare">€0.00</span>
+        </div>
+        <div class="mini-step">
+          <span class="step-ico">🚆</span>
+          <span class="step-txt">Direct NS Intercity: Schiphol Airport &rarr; Groningen (2h 09m direct, 0 changes)</span>
+          <span class="step-fare" id="wLegNs-ams">€63.00 return</span>
+        </div>
+      </div>
+      <div class="r-actions">
+        <span>⏱️ Total Travel: ~5h 20m &bull; 🔄 0 Train Changes</span>
+        <a href="https://www.ns.nl/en/journeyplanner/#/?vertrek=Schiphol+Airport&vertrektype=treinstation&aankomst=Groningen&aankomsttype=treinstation" target="_blank" class="btn-ns-link">Book on NS.nl &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Route 3: Dortmund -->
+    <div class="route-item">
+      <div class="r-head">
+        <div>
+          <div class="r-name">3. Via Dortmund (DTM) &mdash; Budget German Gateway</div>
+          <div class="r-desc">Wizz Air to Dortmund + Airport Express + DB/Arriva cross-border train</div>
+        </div>
+        <div class="r-price-tag">
+          <div class="r-price-num" id="wPrice-dtm">€158</div>
+          <div class="r-price-sub">Round-trip total</div>
+        </div>
+      </div>
+      <div class="mini-steps">
+        <div class="mini-step">
+          <span class="step-ico">✈️</span>
+          <span class="step-txt">Wizz Air: OTP 06:15 &rarr; DTM 07:55 (2h 40m)</span>
+          <span class="step-fare">€58 return</span>
+        </div>
+        <div class="mini-step">
+          <span class="step-ico">🚌</span>
+          <span class="step-txt">Airport Express Coach &rarr; Dortmund Hbf (25m)</span>
+          <span class="step-fare">€20 return</span>
+        </div>
+        <div class="mini-step">
+          <span class="step-ico">🚆</span>
+          <span class="step-txt">DB Intercity / Arriva &rarr; Groningen via Münster/Leer</span>
+          <span class="step-fare">€80 return</span>
+        </div>
+      </div>
+      <div class="r-actions">
+        <span>⏱️ Total Travel: ~7h 15m &bull; 🔄 2 Transfers</span>
+        <a href="https://www.nsinternational.com/en" target="_blank" class="btn-ns-link">NS International &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Route 4: Pure Rail -->
+    <div class="route-item">
+      <div class="r-head">
+        <div>
+          <div class="r-name">4. Pure Rail Overland Explorer (Zero Flights)</div>
+          <div class="r-desc">Bucharest Nord &rarr; Budapest (Night Train) &rarr; Vienna &rarr; Hannover &rarr; Groningen</div>
+        </div>
+        <div class="r-price-tag">
+          <div class="r-price-num">€260</div>
+          <div class="r-price-sub">Round-trip total</div>
+        </div>
+      </div>
+      <div class="mini-steps">
+        <div class="mini-step">
+          <span class="step-ico">🚆</span>
+          <span class="step-txt">CFR Night Train "Ister" / "Dacia" (Couchette sleeper car) to Budapest</span>
+          <span class="step-fare">€85</span>
+        </div>
+        <div class="mini-step">
+          <span class="step-ico">🚆</span>
+          <span class="step-txt">ÖBB Railjet + DB ICE &rarr; Hannover / Leer &rarr; NS to Groningen</span>
+          <span class="step-fare">€175</span>
+        </div>
+      </div>
+      <div class="r-actions">
+        <span>⏱️ Total Travel: ~34h &bull; 🌱 Zero Flight Emissions</span>
+        <a href="https://www.nsinternational.com/en" target="_blank" class="btn-ns-link">NS International &rarr;</a>
+      </div>
+    </div>
+
+    <!-- NS Quick Tip Banner -->
+    <div class="ns-tip-banner">
+      <span style="font-weight:900; background:var(--ns-yellow); color:var(--ns-blue); padding:1px 5px; border-radius:3px;">OVpay</span>
+      <span><strong>Pro Tip:</strong> On all domestic NS trains, you can simply tap in and out with your contactless bank card or Apple/Google Pay. No ticket printing or queueing required!</span>
+    </div>
+  </div>
+
+  <script>
+    const routesData = [
+      { id: "ein", name: "Via Eindhoven (EIN)", flight: 65, transit: 9.60, ns: 66.60, color: "#10b981" },
+      { id: "dtm", name: "Via Dortmund (DTM)", flight: 58, transit: 20.00, ns: 80.00, color: "#06b6d4" },
+      { id: "ams", name: "Via Amsterdam (AMS)", flight: 195, transit: 0.00, ns: 66.60, color: "#ffc917" },
+      { id: "crl", name: "Via Brussels (CRL)", flight: 55, transit: 34.00, ns: 96.00, color: "#3b82f6" },
+      { id: "rail", name: "Pure Rail Overland", flight: 0, transit: 0.00, ns: 260.00, color: "#a855f7" }
+    ];
+
+    function calcWidget() {
+      const luggage = document.getElementById('wLuggage').value;
+      const fareType = document.getElementById('wNsFare').value;
+
+      let luggFee = 0;
+      if (luggage === 'trolley') luggFee = 32;
+      if (luggage === 'checked') luggFee = 65;
+
+      let min = Infinity;
+      const totals = {};
+
+      routesData.forEach(r => {
+        let nsCost = r.ns;
+        if (r.id === 'ein' || r.id === 'ams') {
+          if (fareType === 'prijstijd') nsCost = r.ns * 0.60;
+          if (fareType === 'dalvoordeel') nsCost = (r.ns * 0.60) + 5.60;
+        }
+
+        const airPart = r.flight > 0 ? r.flight + luggFee : 0;
+        const total = Math.round(airPart + r.transit + nsCost);
+        totals[r.id] = total;
+        if (total < min) min = total;
+
+        const pEl = document.getElementById(`wPrice-${r.id}`);
+        if (pEl) pEl.innerText = `€${total}`;
+
+        const airEl = document.getElementById(`wLegAir-${r.id}`);
+        if (airEl) airEl.innerText = `€${airPart} return`;
+
+        const nsEl = document.getElementById(`wLegNs-${r.id}`);
+        if (nsEl) nsEl.innerText = `€${Math.round(nsCost)} return`;
+      });
+
+      document.getElementById('wMinPrice').innerText = `€${min}`;
+
+      // render chart
+      const chart = document.getElementById('wChartContainer');
+      chart.innerHTML = '';
+      const maxVal = Math.max(...Object.values(totals), 280);
+
+      routesData.forEach(r => {
+        const val = totals[r.id];
+        const pct = Math.min(100, Math.round((val / maxVal) * 100));
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        row.innerHTML = `
+          <div class="bar-label">${r.name}</div>
+          <div class="bar-container">
+            <div class="bar-fill" style="width:${pct}%; background-color:${r.color};">€${val}</div>
+          </div>
+          <div class="bar-cost-text">€${val}</div>
+        `;
+        chart.appendChild(row);
+      });
+    }
+
+    calcWidget();
+  </script>
+</body>
+</html>
